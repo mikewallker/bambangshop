@@ -109,3 +109,20 @@ This is the place for you to write reflections:
 3. Yes, I have explored Postman, and it is extremely helpful for API testing. It allows me to simulate requests without needing a frontend or manual execution via CLI tools like curl. I can send GET, POST, PUT, DELETE requests with different payloads. It helps validate request/response formats before integrating with the frontend. One of the feature I find helpful for future project is Monitor API Performance that Helps track API uptime and response time.
 
 #### Reflection Publisher-3
+1. In this implementation, the code uses a Push model of the Observer Pattern. This is evident in the notify() method, where the publisher actively creates a notification payload and pushes it to all subscribers using thread::spawn(). The update() method in the Subscriber implementation demonstrates this push mechanism, where the notification is sent directly to each subscriber with pre-populated data.
+
+2. Advantages of Pull Model:
+
+    Reduced network traffic, as subscribers only request updates when they need them. Lower computational overhead for the publisher. More control for subscribers over when they fetch updates. Potentially more efficient for subscribers with intermittent update needs
+
+    Disadvantages for this specific use case:
+
+    Increased complexity in tracking state changes. Potential for missed updates if subscribers don't poll frequently. More responsibility placed on subscribers to manage update retrieval. Higher latency in receiving notifications. Increased load on the system due to frequent polling
+
+    Specific to this product/notification system, a pull model would require Maintaining a more complex state tracking mechanism, Implementing a polling mechanism for subscribers and Potentially missing time-sensitive notifications like product creation, deletion, or promotions
+
+3. Without multi-threading (removing thread::spawn()), the notification process would become:
+
+- Synchronous: Each subscriber would be notified sequentially
+- Blocking: The notification process would wait for each subscriber to complete before moving to the next
+- Potential performance bottlenecks: If one subscriber is slow to respond, it would delay notifications to other subscribers. The entire notification process would take much longer. Also there is a Risk of timeout or system unresponsiveness if a subscriber takes too long to process
