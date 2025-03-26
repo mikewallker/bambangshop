@@ -77,6 +77,11 @@ This is the place for you to write reflections:
 ### Mandatory (Publisher) Reflections
 
 #### Reflection Publisher-1
+1. In the Observer pattern, an interface (or trait in Rust) is typically used to allow multiple types of subscribers to implement different behaviors when receiving updates. However, in the BambangShop case all subscribers behave the same way (e.g., just storing a URL for notifications), hence a single Subscriber struct is enough. However, if we plan to have different types of subscribers (e.g., different notification mechanisms like email, SMS, or webhook), then using a trait would be better to enforce a common contract.
+
+2. Since id (in Program) and url (in Subscriber) must be unique, using a Vec<Subscriber> means every operation (add, delete, list_all) would require iterating over all elements to check for duplicates. This is inefficient, especially if the number of subscribers grows large. DashMap, as a concurrent HashMap, allows fast lookups by key (url), making it much more efficient for checking uniqueness and retrieving subscribers.Thus, DashMap is necessary to avoid performance issues and unnecessary iterations.
+
+3. The Singleton pattern ensures only one instance of SUBSCRIBERS exists globally, which prevents accidental duplication. However, Singleton alone does not provide thread safety for concurrent reads and writes. Rust enforces strict concurrency rules, and DashMap is already optimized for safe concurrent access. If we implement a Singleton pattern without DashMap, we would still need to use locking mechanisms (e.g., Mutex<HashMap> or RwLock<HashMap>) to ensure thread safety, which can introduce performance bottlenecks. Thus, DashMap remains the better choice for this case since it provides both thread safety and efficient concurrent access without explicit locking.
 
 #### Reflection Publisher-2
 
