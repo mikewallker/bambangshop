@@ -84,5 +84,28 @@ This is the place for you to write reflections:
 3. The Singleton pattern ensures only one instance of SUBSCRIBERS exists globally, which prevents accidental duplication. However, Singleton alone does not provide thread safety for concurrent reads and writes. Rust enforces strict concurrency rules, and DashMap is already optimized for safe concurrent access. If we implement a Singleton pattern without DashMap, we would still need to use locking mechanisms (e.g., Mutex<HashMap> or RwLock<HashMap>) to ensure thread safety, which can introduce performance bottlenecks. Thus, DashMap remains the better choice for this case since it provides both thread safety and efficient concurrent access without explicit locking.
 
 #### Reflection Publisher-2
+1.  Although the traditional Model-View-Controller (MVC) pattern treats the Model as the component that handles both data storage and business logic, modern software design principles advocate for a separation of concerns to improve scalability, maintainability, and testability. This is why we introduce Service and Repository layers. The Repository layer acts as an abstraction over the database or data storage. It provides structured access to data without exposing database implementation details to higher layers. By doing this, we achieve loose coupling, making it easier to switch databases or use different data sources. The Service layer encapsulates business logic and ensures that models interact in a cohesive manner. It prevents fat controllers by keeping business logic separate from request-handling logic. This makes it easier to unit test business logic independently.
+
+2. If we don't separate Service and Repository layers, the Model would have to query the database (directly interacting with raw SQL, ORM, or other DB mechanisms), process business logic (e.g., handling subscriptions, notifications), and will expose data to controllers (handling serialization, transformations). This leads to:
+
+    Tightly coupled code → The Model is responsible for too many things.
+
+    Reduced reusability → Other parts of the system cannot reuse business logic independently.
+
+    Difficult testing → Unit testing becomes harder since the Model directly depends on external data sources.
+
+    Scalability issues → Adding new business logic requires modifying Models, increasing the risk of breaking changes.
+
+    If we only use the Model, the interactions between Program, Subscriber, and Notification will lead to tightly coupled logic.
+
+    - Scenario Without Service and Repository
+
+    Program might need to directly query Subscriber and Notification, leading to duplicate code in different places. If Notification has logic related to Subscriber, the Subscriber model might become bloated with unrelated notification logic. Any change in Subscriber (like a schema update) could break Notification logic inside the Model.
+
+    - Scenario With Service and Repository
+
+    ProgramService interacts with SubscriberService and NotificationService indirectly, reducing interdependencies. Each model remains focused on its purpose (data structure) while services handle orchestration. The system is easier to test, maintain, and extend.
+
+3. Yes, I have explored Postman, and it is extremely helpful for API testing. It allows me to simulate requests without needing a frontend or manual execution via CLI tools like curl. I can send GET, POST, PUT, DELETE requests with different payloads. It helps validate request/response formats before integrating with the frontend. One of the feature I find helpful for future project is Monitor API Performance that Helps track API uptime and response time.
 
 #### Reflection Publisher-3
